@@ -1,0 +1,35 @@
+{
+  "name": "basa-koi-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Basa-koi (HomeFinder BD) - Smart Location-Based House Rental & To-Let Marketplace for Bangladesh",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/web",
+    "apps/admin"
+  ],
+  "scripts": {
+    "dev:api": "npm --workspace=services/api run dev",
+    "dev:web": "npm --workspace=apps/web run dev",
+    "dev:admin": "npm --workspace=apps/admin run dev",
+    "build:types": "npm --workspace=packages/shared-types run build",
+    "build:api": "npm --workspace=services/api run build",
+    "build:web": "npm --workspace=apps/web run build",
+    "build:admin": "npm --workspace=apps/admin run build",
+    "build": "npm run build:types && npm run build:api && npm run build:web && npm run build:admin",
+    "lint": "npm run --workspaces lint"
+  },
+  "keywords": [
+    "basa-koi",
+    "homefinder-bd",
+    "rental",
+    "flutter",
+    "nextjs",
+    "express",
+    "firebase"
+  ],
+  "author": "Basa-koi Engineering Team",
+  "license": "MIT"
+}
+

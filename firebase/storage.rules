@@ -1,0 +1,47 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (request.auth.token.admin == true || request.auth.token.role == 'admin');
+    }
+
+    function isImageUnder5MB() {
+      return request.resource.size < 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/(jpeg|png|webp|jpg)');
+    }
+
+    // 1. Property Images
+    match /properties/{propertyId}/{fileName} {
+      allow read: if true; // Approved images are public CDN assets
+      allow write: if isAuthenticated() && isImageUnder5MB();
+      allow delete: if isAuthenticated() || isAdmin();
+    }
+
+    // 2. User Profile Pictures
+    match /users/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if isOwner(userId) && isImageUnder5MB();
+      allow delete: if isOwner(userId) || isAdmin();
+    }
+
+    // 3. Owner Verification Documents (NID, Holding Tax receipts)
+    match /verifications/{userId}/{fileName} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isOwner(userId) && 
+        request.resource.size < 10 * 1024 * 1024 &&
+        request.resource.contentType.matches('(image/.*|application/pdf)');
+      allow delete: if isAdmin();
+    }
+  }
+}
+
